@@ -9,6 +9,8 @@ from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
 from langchain_community.embeddings import OllamaEmbeddings
+import speech_recognition as sr
+import pyttsx3
 
 # === Chat History Disk Persistence ===
 HISTORY_DIR = "chat_history"
@@ -30,6 +32,27 @@ def save_history(messages):
     with open(filepath, "w") as f:
         json.dump([{"type": msg.type, "content": msg.content} for msg in messages], f, indent=2)
 
+# === Voice Engine Setup ===
+engine = pyttsx3.init()
+engine.setProperty('rate', 175)
+
+def speak(text):
+    engine.say(text)
+    engine.runAndWait()
+
+def recognize_speech():
+    recognizer = sr.Recognizer()
+    with sr.Microphone() as source:
+        st.info("🎤 Listening...")
+        audio = recognizer.listen(source)
+    try:
+        return recognizer.recognize_google(audio)
+    except sr.UnknownValueError:
+        st.warning("Could not understand audio")
+    except sr.RequestError as e:
+        st.error(f"Speech recognition error: {e}")
+    return ""
+
 # === Streamlit UI Setup ===
 st.set_page_config(page_title="Local Chatbot", page_icon="")
 st.title("Daniel's ChatBot")
@@ -38,6 +61,8 @@ st.title("Daniel's ChatBot")
 with st.sidebar:
     st.subheader("🤖 Bot Personality")
     system_prompt = st.text_area("Set system prompt (personality)", value="You are a helpful, witty, concise assistant.")
+    use_voice_input = st.checkbox("🎙️ Use voice input")
+    use_voice_output = st.checkbox("🔊 Use voice output")
 
 # === Initialize Session State ===
 if "chat_history" not in st.session_state:
@@ -84,7 +109,14 @@ for msg in st.session_state.messages:
         st.chat_message("assistant", avatar="\U0001F916").write(msg.content)
 
 # === Chat Input ===
-if user_input := st.chat_input("Ask me anything..."):
+user_input = None
+if use_voice_input:
+    if st.button("🎙️ Speak"):
+        user_input = recognize_speech()
+else:
+    user_input = st.chat_input("Ask me anything...")
+
+if user_input:
     st.chat_message("user", avatar="\U0001F464").write(user_input)
     st.session_state.chat_history.add_user_message(user_input)
 
@@ -106,3 +138,6 @@ if user_input := st.chat_input("Ask me anything..."):
     save_history(st.session_state.messages)
 
     st.chat_message("assistant", avatar="\U0001F916").write(response.content)
+
+    if use_voice_output:
+        speak(response.content)

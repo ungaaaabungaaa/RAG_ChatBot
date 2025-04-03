@@ -27,13 +27,14 @@ A fully local, privacy-focused AI chatbot built with **LangChain**, **Ollama**, 
 ## 🛠 Tech Stack
 
 - Python
-  - [LangChain](https://python.langchain.com/)
-  - [Streamlit](https://streamlit.io/)
-  - [FAISS](https://github.com/facebookresearch/faiss)
-  - [PyPDFLoader](https://python.langchain.com/docs/modules/data_connection/document_loaders/pdf)
-  - [SpeechRecognition](https://pypi.org/project/SpeechRecognition/)
-  - [pyttsx3](https://pypi.org/project/pyttsx3/)
-- [Ollama](https://ollama.com) 
+  - ![LangChain](https://img.shields.io/badge/LangChain-000000?style=for-the-badge&logo=chainlink&logoColor=white)
+  - ![Ollama](https://img.shields.io/badge/Ollama-000000?style=for-the-badge&logo=openai&logoColor=white)
+  - ![FAISS](https://img.shields.io/badge/FAISS-0099CC?style=for-the-badge&logo=vector&logoColor=white)
+  - ![Ollama Embeddings](https://img.shields.io/badge/Ollama_Embeddings-412991?style=for-the-badge&logo=openai&logoColor=white)
+  - ![PyPDFLoader](https://img.shields.io/badge/PyPDFLoader-4B8BBE?style=for-the-badge&logo=readthedocs&logoColor=white)
+  - ![TextLoader](https://img.shields.io/badge/TextLoader-888888?style=for-the-badge&logo=readthedocs&logoColor=white)
+  - ![SpeechRecognition](https://img.shields.io/badge/SpeechRecognition-007ACC?style=for-the-badge&logo=microphone&logoColor=white)
+  - ![pyttsx3](https://img.shields.io/badge/pyttsx3-B5651D?style=for-the-badge&logo=soundcloud&logoColor=white)
 
 ---
 
@@ -44,4 +45,4 @@ A fully local, privacy-focused AI chatbot built with **LangChain**, **Ollama**, 
 pip install -r requirements.txt
 
 # Run the chatbot
-streamlit run app.py
+streamlit run UIChat.py

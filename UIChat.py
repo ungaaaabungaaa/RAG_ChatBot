@@ -8,7 +8,8 @@ from langchain_core.chat_history import InMemoryChatMessageHistory
 from langchain_community.document_loaders import PyPDFLoader, TextLoader
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 from langchain_community.vectorstores import FAISS
-from langchain_community.embeddings import OllamaEmbeddings
+# from langchain_community.embeddings import OllamaEmbeddings
+from langchain_ollama import OllamaEmbeddings
 import speech_recognition as sr
 import pyttsx3
 
@@ -64,7 +65,7 @@ with st.sidebar:
     use_voice_input = st.checkbox("🎙️ Use voice input")
     use_voice_output = st.checkbox("🔊 Use voice output")
 
-# === Initialize Session State ===
+# === Initialise Session State ===
 if "chat_history" not in st.session_state:
     st.session_state.chat_history = InMemoryChatMessageHistory()
     st.session_state.messages = []
@@ -78,7 +79,7 @@ if "chat_history" not in st.session_state:
             st.session_state.messages.append(AIMessage(content=msg["content"]))
 
 # === LLM Setup ===
-llm = ChatOllama(model="mistral:7b")
+llm = ChatOllama(model="llama3.2:3b")
 retriever = None
 
 # === Document Upload ===
@@ -97,7 +98,7 @@ if uploaded_file is not None:
     splitter = RecursiveCharacterTextSplitter(chunk_size=500, chunk_overlap=50)
     chunks = splitter.split_documents(docs)
 
-    embeddings = OllamaEmbeddings(model="mistral")
+    embeddings = OllamaEmbeddings(model="llama3.2:3b")
     db = FAISS.from_documents(chunks, embeddings)
     retriever = db.as_retriever()
 
@@ -121,7 +122,7 @@ if user_input:
     st.session_state.chat_history.add_user_message(user_input)
 
     if retriever:
-        context_docs = retriever.get_relevant_documents(user_input)
+        context_docs = retriever.invoke(user_input)
         context_text = "\n\n".join([doc.page_content for doc in context_docs[:3]])
         user_input_with_context = f"Context:\n{context_text}\n\nQuestion: {user_input}"
     else:

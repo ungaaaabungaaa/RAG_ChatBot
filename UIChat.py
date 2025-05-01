@@ -114,49 +114,20 @@ if "voice_input_enabled" not in st.session_state:
 if "last_spoken_message_hash" not in st.session_state:
     st.session_state.last_spoken_message_hash = None
 
-if "is_muted" not in st.session_state:
-    st.session_state.is_muted = False
-
 if "is_paused" not in st.session_state:
     st.session_state.is_paused = False
-
-if "current_speech_text" not in st.session_state:
-    st.session_state.current_speech_text = ""
 
 if "last_spoken_text" not in st.session_state:
     st.session_state.last_spoken_text = ""
 
-if "is_speaking" not in st.session_state:
-    st.session_state.is_speaking = False
-
-if "pending_speech_text" not in st.session_state:
-    st.session_state.pending_speech_text = ""
-
 # --- TTS Engine Initialization ---
 def initialize_tts():
-    """Initializes the pyttsx3 engine and sets up proper state tracking."""
+    """Initializes the pyttsx3 engine."""
     if st.session_state.tts_engine is None:
         try:
             engine = pyttsx3.init()
             engine.setProperty('rate', 175)
-            
-            # Define callback functions
-            def on_start(name):
-                st.session_state.is_speaking = True
-                st.session_state.current_speech_text = st.session_state.pending_speech_text
-            
-            def on_end(name, completed):
-                st.session_state.is_speaking = False
-                st.session_state.current_speech_text = ''
-                st.session_state.last_spoken_text = st.session_state.pending_speech_text
-                st.session_state.pending_speech_text = ''
-            
-            # Connect callbacks
-            engine.connect('started-utterance', on_start)
-            engine.connect('finished-utterance', on_end)
-            
             st.session_state.tts_engine = engine
-            st.session_state.is_speaking = False
             return True
         except Exception as e:
             st.error(f"Error initializing TTS engine: {e}")
@@ -165,91 +136,45 @@ def initialize_tts():
     return True
 
 def speak(text):
-    """Speaks the given text if TTS is enabled and not muted/paused."""
-    if not text or not st.session_state.tts_enabled or st.session_state.is_muted:
+    """Speaks the given text if TTS is enabled and not paused."""
+    if not text or not st.session_state.tts_enabled or st.session_state.is_paused:
         return
         
-    if st.session_state.is_paused:
-        st.session_state.pending_speech_text = text
-        return
-        
-    if not initialize_tts():
-        return
-        
-    try:
-        # Stop any currently playing speech
-        if st.session_state.is_speaking:
-            st.session_state.tts_engine.stop()
-            
-        st.session_state.pending_speech_text = text
-        st.session_state.tts_engine.say(text)
-        st.session_state.tts_engine.runAndWait()
-    except Exception as e:
-        st.warning(f"Could not speak text: {e}")
-        # Reset engine on error
-        st.session_state.tts_engine = None
-        initialize_tts()
-
-def pause_speech():
-    """Pauses the current speech."""
-    if st.session_state.get('is_speaking', False):
+    if initialize_tts():
         try:
-            if st.session_state.tts_engine:
+            # Save the text we're about to speak
+            st.session_state.last_spoken_text = text
+            
+            # Speak the text
+            st.session_state.tts_engine.say(text)
+            st.session_state.tts_engine.runAndWait()
+        except Exception as e:
+            st.warning(f"Could not speak text: {e}")
+            # Reset engine on error
+            st.session_state.tts_engine = None
+
+def toggle_pause_resume():
+    """Toggles between pause and resume states for speech."""
+    if initialize_tts():
+        try:
+            if st.session_state.is_paused:
+                # Resume speech - replay the last spoken text
+                st.session_state.is_paused = False
+                if st.session_state.last_spoken_text:
+                    # Reinitialize to ensure we have a clean state
+                    st.session_state.tts_engine = None
+                    initialize_tts()
+                    speak(st.session_state.last_spoken_text)
+                    st.success("▶️ Resumed speech.")
+                else:
+                    st.info("No previous speech to resume.")
+            else:
+                # Pause speech
                 st.session_state.tts_engine.stop()
                 st.session_state.is_paused = True
-                st.session_state.is_speaking = False
                 st.success("⏸️ Speech paused.")
         except Exception as e:
-            st.warning(f"Could not pause speech: {e}")
-    else:
-        st.info("No speech is currently playing.")
-
-def play_speech():
-    """Resumes paused speech or replays the last spoken text."""
-    if st.session_state.is_muted:
-        st.warning("Cannot play: Speech is muted. Unmute first.")
-        return
-        
-    if st.session_state.is_paused:
-        try:
-            st.session_state.is_paused = False
-            if st.session_state.pending_speech_text:
-                # Re-initialize the engine to ensure clean state
-                st.session_state.tts_engine = None
-                initialize_tts()
-                speak(st.session_state.pending_speech_text)
-                st.success("▶️ Speech resumed.")
-        except Exception as e:
-            st.warning(f"Could not resume speech: {e}")
-    elif st.session_state.last_spoken_text:
-        try:
-            st.session_state.is_paused = False
-            # Re-initialize the engine to ensure clean state
-            st.session_state.tts_engine = None
-            initialize_tts()
-            speak(st.session_state.last_spoken_text)
-            st.success("▶️ Replaying last spoken message.")
-        except Exception as e:
-            st.warning(f"Could not replay speech: {e}")
-    else:
-        st.info("No previous speech to play.")
-
-def mute_speech():
-    """Mutes the speech output."""
-    try:
-        if st.session_state.tts_engine and st.session_state.get('is_speaking', False):
-            st.session_state.tts_engine.stop()
-        st.session_state.is_muted = True
-        st.session_state.is_paused = False
-        st.session_state.is_speaking = False
-        st.success("🔇 Speech muted.")
-    except Exception as e:
-        st.warning(f"Could not mute speech: {e}")
-
-def unmute_speech():
-    """Unmutes the speech output."""
-    st.session_state.is_muted = False
-    st.success("🔊 Speech unmuted.")
+            st.warning(f"Could not toggle pause/resume: {e}")
 
 # === Voice Input Function ===
 def recognize_speech():
@@ -404,20 +329,10 @@ with st.sidebar:
     if st.session_state.tts_enabled:
         initialize_tts()
 
-    # Voice control buttons
-    col1, col2, col3 = st.columns(3)
-    with col1:
-        if st.button("⏸️ Pause", key="pause_button"):
-            pause_speech()
-    with col2:
-        if st.button("▶️ Play", key="play_button"):
-            play_speech()
-    with col3:
-        if st.button("🔇 Mute" if not st.session_state.is_muted else "🔊 Unmute", key="mute_button"):
-            if st.session_state.is_muted:
-                unmute_speech()
-            else:
-                mute_speech()
+    # Voice control button - Pause/Resume toggle
+    pause_resume_text = "⏸️ Pause" if not st.session_state.is_paused else "▶️ Resume"
+    if st.button(pause_resume_text, key="pause_resume_button", on_click=toggle_pause_resume):
+        pass  # The on_click handler will run
 
     st.markdown("---")
     st.subheader("📄 Knowledge Base (PDF)")
@@ -588,15 +503,13 @@ if user_input:
         st.rerun()
 
 # === Speak the Last AI Message ===
-if st.session_state.tts_enabled and st.session_state.messages and not st.session_state.is_muted:
+if st.session_state.tts_enabled and st.session_state.messages and not st.session_state.is_paused:
     last_message = st.session_state.messages[-1]
     if isinstance(last_message, AIMessage):
         message_hash = hashlib.md5(last_message.content.encode("utf-8")).hexdigest()
-        if st.session_state.get("last_spoken_message_hash") != message_hash and not st.session_state.is_paused:
+        if st.session_state.get("last_spoken_message_hash") != message_hash:
             speak(last_message.content)
             st.session_state.last_spoken_message_hash = message_hash
 elif not st.session_state.tts_enabled and st.session_state.get("last_spoken_message_hash") is not None:
     st.session_state.last_spoken_message_hash = None
-    st.session_state.is_muted = False
     st.session_state.is_paused = False
-    st.session_state.current_speech_text = ""

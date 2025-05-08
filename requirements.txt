@@ -1,0 +1,35 @@
+# Core dependencies
+streamlit>=1.31.0
+pandas>=2.0.0
+matplotlib>=3.7.0
+
+# Language model and embeddings
+langchain>=0.1.0
+langchain-community>=0.0.16
+langchain-ollama>=0.0.1
+langchain-core>=0.1.0
+faiss-cpu>=1.7.4
+
+# PDF processing
+PyPDF2>=3.0.0
+pdfplumber>=0.10.0
+python-doctr>=0.7.0
+ocrmypdf>=15.4.3
+
+# Document handling and text splitting
+langchain-text-splitters>=0.0.1
+
+# Voice capabilities
+pyttsx3>=2.90
+vosk>=0.3.45
+SpeechRecognition>=3.10.0
+wave>=0.0.2
+
+# Ollama client
+ollama>=0.1.5
+
+# File handling
+python-magic>=0.4.27
+
+# System utilities
+psutil>=5.9.0

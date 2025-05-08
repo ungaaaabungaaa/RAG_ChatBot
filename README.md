@@ -36,16 +36,7 @@ Before you begin, ensure you have the following:
     source .venv/bin/activate  # Linux/Mac
     .venv\Scripts\activate     # Windows
 ```
-3. Install dependencies:
-
-```bash
-   pip install -r requirements.txt
-```
-
-4. Set up Vosk models:
-    Download the small English model from alphacephei.com/vosk/models
-    Extract it to vosk-models/vosk-model-small-en-us-0.15 in your project directory
-
+3. install all the dependency 
 
 ## ▶️ Running the Application
 Ensure Ollama is running in the background
@@ -53,7 +44,7 @@ Ensure Ollama is running in the background
 Start the application:
 
 ``` bash
-streamlit run app.py
+streamlit run main.py
 The app will open in your default browser at http://localhost:8501
 ```
 
@@ -82,7 +73,7 @@ Modify these constants in app.py to customize behavior:
 
 ```bash
 python
-DEFAULT_LLM_MODEL = "mistral:7b"               # Change the language model
+DEFAULT_LLM_MODEL = ""               # Change the language model
 DEFAULT_EMBEDDING_MODEL = "nomic-embed-text:latest"  # Change embedding model
 DEFAULT_SYSTEM_PROMPT = "..."                   # Customize AI personality
 VOSK_MODEL_PATH = "vosk-models/..."             # Path to Vosk model

@@ -15,13 +15,14 @@ PyPDF2>=3.0.0
 pdfplumber>=0.10.0
 python-doctr>=0.7.0
 ocrmypdf>=15.4.3
+pdf2image
 
 # Document handling and text splitting
 langchain-text-splitters>=0.0.1
 
 # Voice capabilities
 pyttsx3>=2.90
-vosk>=0.3.45
+vosk<=0.3.44
 SpeechRecognition>=3.10.0
 wave>=0.0.2
 
@@ -33,3 +34,4 @@ python-magic>=0.4.27
 
 # System utilities
 psutil>=5.9.0
+sentence-transformers

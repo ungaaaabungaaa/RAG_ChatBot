@@ -32,7 +32,8 @@ Before you begin, ensure you have the following:
 1. Clone or download the repository
 2. Create and activate a virtual environment:
 ```bash
-    python -m venv .venv
+    python -m venv .venv 
+    python3.10 -m venv .venv
     source .venv/bin/activate  # Linux/Mac
     .venv\Scripts\activate     # Windows
 ```

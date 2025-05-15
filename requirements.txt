@@ -2,6 +2,7 @@
 streamlit>=1.31.0
 pandas>=2.0.0
 matplotlib>=3.7.0
+numpy<2
 
 # Language model and embeddings
 langchain>=0.1.0
@@ -16,6 +17,8 @@ pdfplumber>=0.10.0
 python-doctr>=0.7.0
 ocrmypdf>=15.4.3
 pdf2image
+unstructured
+unstructured_inference
 
 # Document handling and text splitting
 langchain-text-splitters>=0.0.1

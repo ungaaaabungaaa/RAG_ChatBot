@@ -22,7 +22,7 @@ from vosk import Model, KaldiRecognizer
 import wave
 
 # === Configuration ===
-DEFAULT_LLM_MODEL = "mistral:7b"
+DEFAULT_LLM_MODEL = "llava:latest"
 DEFAULT_EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 DEFAULT_SYSTEM_PROMPT = "You are Chatbot, a helpful, witty, and slightly sarcastic assistant. Answer concisely based on the provided context from documents, images, and tables. When referencing figures or tables, use the format [Figure X] or [Table Y]. If the answer isn't in the context, say you don't know."
 HISTORY_DIR = "chat_history"

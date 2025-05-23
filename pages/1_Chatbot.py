@@ -137,16 +137,21 @@ def get_available_ollama_models():
 
 def check_ollama_status():
     try:
-        response = requests.get("http://localhost:11434/api/tags", timeout=5)
-        if response.status_code == 200:
-            available_models = [model["name"] for model in response.json()["models"]]
-            return True, available_models
-        else:
+        # First check if the base URL responds
+        health_response = requests.get("http://localhost:11434", timeout=5)
+        if health_response.status_code != 200:
             return False, []
-    except requests.exceptions.RequestException:
+        
+        # Then check the API specifically
+        api_response = requests.get("http://localhost:11434/api/tags", timeout=5)
+        if api_response.status_code == 200:
+            return True, [model["name"] for model in api_response.json().get("models", [])]
+        return False, []
+    except Exception as e:
+        st.error(f"Ollama connection error: {str(e)}")
         return False, []
 
-def generate_with_ollama(prompt, model=DEFAULT_LLM_MODEL, max_tokens=500):
+def generate_with_ollama(prompt, model=DEFAULT_LLM_MODEL, max_tokens=1000):
     payload = {
         "model": model,
         "prompt": prompt,
@@ -157,12 +162,26 @@ def generate_with_ollama(prompt, model=DEFAULT_LLM_MODEL, max_tokens=500):
     }
 
     try:
-        response = requests.post(OLLAMA_API_URL, json=payload, timeout=60)
+        # First check if Ollama is running
+        health_response = requests.get("http://localhost:11434", timeout=5)
+        if health_response.status_code != 200:
+            return "Ollama service is not running. Please start Ollama first."
+
+        # Then make the API call
+        response = requests.post(
+            "http://localhost:11434/api/generate",
+            json=payload,
+            timeout=60
+        )
         response.raise_for_status()
-        return response.json()["response"]
-    except requests.exceptions.RequestException as e:
-        st.error(f"Error calling Ollama API: {e}")
-        return "Sorry, I couldn't generate a response. Please check if Ollama is running."
+        return response.json().get("response", "No response generated")
+        
+    except requests.exceptions.ConnectionError:
+        return "Could not connect to Ollama. Please make sure Ollama is running."
+    except requests.exceptions.Timeout:
+        return "Request timed out. Ollama might be busy or not responding."
+    except Exception as e:
+        return f"Error generating response: {str(e)}"
 
 # === Voice Functions ===
 def initialize_tts():

@@ -171,7 +171,7 @@ def generate_with_ollama(prompt, model=DEFAULT_LLM_MODEL, max_tokens=1000):
         response = requests.post(
             "http://localhost:11434/api/generate",
             json=payload,
-            timeout=60
+            timeout=120
         )
         response.raise_for_status()
         return response.json().get("response", "No response generated")

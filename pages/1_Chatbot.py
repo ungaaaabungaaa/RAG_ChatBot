@@ -499,6 +499,79 @@ Answer concisely and include [Figure X] or [Table Y] references when appropriate
     return response, context
 
 # === Display Functions ===
+def display_referenced_files(response_text):
+    """Display images and tables referenced in the response text."""
+    # Get all files from directories
+    image_files = [f for f in os.listdir(IMAGE_FOLDER) if f.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp', '.gif'))]
+    table_files = [f for f in os.listdir(TABLE_FOLDER) if f.lower().endswith('.csv')]
+    
+    # Extract references from the response text
+    figure_refs = re.findall(r'\[Figure (\d+)\]', response_text)
+    table_refs = re.findall(r'\[Table (\d+)\]', response_text)
+    
+    # Extract direct file references
+    direct_image_refs = []
+    direct_table_refs = []
+    
+    # Look for direct file references in the text
+    for img_file in image_files:
+        if img_file in response_text:
+            direct_image_refs.append(img_file)
+    
+    for tbl_file in table_files:
+        if tbl_file in response_text:
+            direct_table_refs.append(tbl_file)
+    
+    # Display referenced images
+    if figure_refs or direct_image_refs:
+        st.subheader("Referenced Images")
+        
+        # Display images from [Figure X] references
+        for ref in figure_refs:
+            try:
+                idx = int(ref) - 1
+                if idx < len(image_files):
+                    image_path = os.path.join(IMAGE_FOLDER, image_files[idx])
+                    st.image(image_path, caption=f"Figure {ref}")
+            except (ValueError, IndexError):
+                continue
+        
+        # Display directly referenced images
+        for img_file in direct_image_refs:
+            try:
+                image_path = os.path.join(IMAGE_FOLDER, img_file)
+                if os.path.exists(image_path):
+                    st.image(image_path, caption=img_file)
+            except Exception as e:
+                st.error(f"Error displaying image {img_file}: {str(e)}")
+    
+    # Display referenced tables
+    if table_refs or direct_table_refs:
+        st.subheader("Referenced Tables")
+        
+        # Display tables from [Table X] references
+        for ref in table_refs:
+            try:
+                idx = int(ref) - 1
+                if idx < len(table_files):
+                    table_path = os.path.join(TABLE_FOLDER, table_files[idx])
+                    df = pd.read_csv(table_path)
+                    st.caption(f"Table {ref}")
+                    st.dataframe(df)
+            except (ValueError, IndexError):
+                continue
+        
+        # Display directly referenced tables
+        for tbl_file in direct_table_refs:
+            try:
+                table_path = os.path.join(TABLE_FOLDER, tbl_file)
+                if os.path.exists(table_path):
+                    df = pd.read_csv(table_path)
+                    st.caption(tbl_file)
+                    st.dataframe(df)
+            except Exception as e:
+                st.error(f"Error displaying table {tbl_file}: {str(e)}")
+
 def display_chat_message(msg, context=None):
     """Displays a single chat message with multimedia handling."""
     if isinstance(msg, HumanMessage):
@@ -506,43 +579,9 @@ def display_chat_message(msg, context=None):
             st.write(msg.content)
     elif isinstance(msg, AIMessage):
         with st.chat_message("assistant", avatar="🤖"):
-            if context:
-                # Parse the response for figure and table references
-                content = msg.content
-                
-                # Split content by references
-                parts = re.split(r'(\[Figure \d+\]|\[Table \d+\])', content)
-                
-                for part in parts:
-                    if part.startswith('[Figure'):
-                        # Extract figure number
-                        fig_num = int(re.search(r'\d+', part).group())
-                        if len(context['images']) >= fig_num:
-                            img = context['images'][fig_num-1]
-                            try:
-                                if os.path.exists(img['path']):
-                                    st.image(img['path'], caption=part)
-                                else:
-                                    st.error(f"Image not found: {img['path']}")
-                            except Exception as e:
-                                st.error(f"Error displaying image: {str(e)}")
-                    elif part.startswith('[Table'):
-                        # Extract table number
-                        tbl_num = int(re.search(r'\d+', part).group())
-                        if len(context['tables']) >= tbl_num:
-                            tbl = context['tables'][tbl_num-1]
-                            try:
-                                if os.path.exists(tbl['path']):
-                                    df = pd.read_csv(tbl['path'])
-                                    st.dataframe(df)
-                                else:
-                                    st.error(f"Table not found: {tbl['path']}")
-                            except Exception as e:
-                                st.error(f"Error displaying table: {str(e)}")
-                    else:
-                        st.write(part)
-            else:
-                st.write(msg.content)
+            st.write(msg.content)
+            # Display referenced files from the response
+            display_referenced_files(msg.content)
 
 def handle_file_uploads():
     st.header("Upload Documents")

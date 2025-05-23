@@ -38,6 +38,7 @@ Before you begin, ensure you have the following:
     .venv\Scripts\activate     # Windows
 ```
 3. install all the dependency 
+pip install -r requirements.txt
 
 ## ▶️ Running the Application
 Ensure Ollama is running in the background

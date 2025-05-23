@@ -480,7 +480,7 @@ def generate_response_with_history(query, collection, embedding_model, chat_hist
 
     # Build prompt with context and history
     prompt = f"""You are a helpful assistant. Use the provided context to answer questions accurately.
-When referencing figures or tables, use the format [Figure X] or [Table Y].
+When referencing figures or tables, use the format [Figure X] or [Table Y] where X/Y are numbers starting from 1.
 
 Previous conversation:
 {history_text}
@@ -493,49 +493,56 @@ Image Context: {' '.join([img['caption'] for img in context['images']])}
 
 Table Context: {' '.join([tbl['description'] for tbl in context['tables']])}
 
-Answer:"""
+Answer concisely and include [Figure X] or [Table Y] references when appropriate:"""
 
     response = generate_with_ollama(prompt)
     return response, context
 
 # === Display Functions ===
-def display_response_with_context(response, context):
-    st.markdown("### Answer")
-    st.write(response)
-
-    if any(context.values()):
-        with st.expander("View Referenced Context"):
-            if context['text']:
-                st.markdown("#### Text References")
-                for i, text in enumerate(context['text']):
-                    st.markdown(f"**Text {i+1}**: {text[:300]}...")
-
-            if context['images']:
-                st.markdown("#### Image References")
-                cols = st.columns(min(3, len(context['images'])))
-                for i, img in enumerate(context['images']):
-                    with cols[i % len(cols)]:
-                        try:
-                            if os.path.exists(img['path']):
-                                st.image(img['path'], caption=f"Figure {i+1}")
-                                st.write(img['caption'])
-                            else:
-                                st.error(f"Image not found: {img['path']}")
-                        except Exception as e:
-                            st.error(f"Error displaying image: {str(e)}")
-
-            if context['tables']:
-                st.markdown("#### Table References")
-                for i, tbl in enumerate(context['tables']):
-                    st.markdown(f"**Table {i+1}**: {tbl['description']}")
-                    try:
-                        if os.path.exists(tbl['path']):
-                            df = pd.read_csv(tbl['path'])
-                            st.dataframe(df)
-                        else:
-                            st.error(f"Table not found: {tbl['path']}")
-                    except Exception as e:
-                        st.error(f"Error displaying table: {str(e)}")
+def display_chat_message(msg, context=None):
+    """Displays a single chat message with multimedia handling."""
+    if isinstance(msg, HumanMessage):
+        with st.chat_message("user", avatar="🦖"):
+            st.write(msg.content)
+    elif isinstance(msg, AIMessage):
+        with st.chat_message("assistant", avatar="🤖"):
+            if context:
+                # Parse the response for figure and table references
+                content = msg.content
+                
+                # Split content by references
+                parts = re.split(r'(\[Figure \d+\]|\[Table \d+\])', content)
+                
+                for part in parts:
+                    if part.startswith('[Figure'):
+                        # Extract figure number
+                        fig_num = int(re.search(r'\d+', part).group())
+                        if len(context['images']) >= fig_num:
+                            img = context['images'][fig_num-1]
+                            try:
+                                if os.path.exists(img['path']):
+                                    st.image(img['path'], caption=part)
+                                else:
+                                    st.error(f"Image not found: {img['path']}")
+                            except Exception as e:
+                                st.error(f"Error displaying image: {str(e)}")
+                    elif part.startswith('[Table'):
+                        # Extract table number
+                        tbl_num = int(re.search(r'\d+', part).group())
+                        if len(context['tables']) >= tbl_num:
+                            tbl = context['tables'][tbl_num-1]
+                            try:
+                                if os.path.exists(tbl['path']):
+                                    df = pd.read_csv(tbl['path'])
+                                    st.dataframe(df)
+                                else:
+                                    st.error(f"Table not found: {tbl['path']}")
+                            except Exception as e:
+                                st.error(f"Error displaying table: {str(e)}")
+                    else:
+                        st.write(part)
+            else:
+                st.write(msg.content)
 
 def handle_file_uploads():
     st.header("Upload Documents")
@@ -602,6 +609,9 @@ if "is_paused" not in st.session_state:
 
 if "last_spoken_text" not in st.session_state:
     st.session_state.last_spoken_text = ""
+
+if "last_context" not in st.session_state:
+    st.session_state.last_context = None
 
 # === Load Models and Initialize DB ===
 try:
@@ -688,9 +698,10 @@ with st.sidebar:
 
 # === Display Chat History ===
 for msg in st.session_state.messages:
-    avatar = "🦖" if isinstance(msg, HumanMessage) else "🤖"
-    with st.chat_message(msg.type):
-        st.write(msg.content)
+    if isinstance(msg, AIMessage) and st.session_state.last_context:
+        display_chat_message(msg, st.session_state.last_context)
+    else:
+        display_chat_message(msg)
 
 # === Handle User Input ===
 user_input = None
@@ -725,6 +736,7 @@ if user_input:
                     response, context = generate_response_with_history(
                         user_input, collection, embedding_model, st.session_state.messages[:-1]
                     )
+                    st.session_state.last_context = context
 
                 # Add AI response to history
                 ai_message = AIMessage(content=response)
@@ -733,39 +745,7 @@ if user_input:
                 # Save history
                 save_history(st.session_state.messages)
                 
-                # Display response
-                with st.chat_message("assistant"):
-                    st.write(response)
-                    if any(context.values()):
-                        with st.expander("View Referenced Context"):
-                            if context['text']:
-                                st.markdown("#### Text References")
-                                for i, text in enumerate(context['text']):
-                                    st.markdown(f"**Text {i+1}**: {text[:300]}...")
-
-                            if context['images']:
-                                st.markdown("#### Image References")
-                                cols = st.columns(min(3, len(context['images'])))
-                                for i, img in enumerate(context['images']):
-                                    with cols[i % len(cols)]:
-                                        try:
-                                            if os.path.exists(img['path']):
-                                                st.image(img['path'], caption=f"Figure {i+1}")
-                                                st.write(img['caption'])
-                                        except Exception as e:
-                                            st.error(f"Error displaying image: {str(e)}")
-
-                            if context['tables']:
-                                st.markdown("#### Table References")
-                                for i, tbl in enumerate(context['tables']):
-                                    st.markdown(f"**Table {i+1}**: {tbl['description']}")
-                                    try:
-                                        if os.path.exists(tbl['path']):
-                                            df = pd.read_csv(tbl['path'])
-                                            st.dataframe(df)
-                                    except Exception as e:
-                                        st.error(f"Error displaying table: {str(e)}")
-
+                # Rerun to display the new messages
                 st.rerun()
 
         except Exception as e:

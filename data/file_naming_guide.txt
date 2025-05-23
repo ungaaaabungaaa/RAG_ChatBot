@@ -1,0 +1,96 @@
+FILE NAMING GUIDELINES FOR RAG CHATBOT
+====================================
+
+This guide will help you name your files correctly to ensure proper functioning of the chatbot's file referencing system.
+
+BEST PRACTICES
+-------------
+
+✅ DO's:
+1. Use simple, descriptive names
+   Example: jupiter_planet.png, population_data.csv
+
+2. Use lowercase letters
+   Example: solar_system.png, not Solar_System.png
+
+3. Use underscores instead of spaces
+   Example: red_apple.jpg, not "red apple.jpg"
+
+4. Keep names short but meaningful
+   Example: planets_2023.csv, not detailed_planetary_data_2023.csv
+
+5. Use consistent naming patterns for related files
+   Example: 
+   - planet_mercury.png, planet_venus.png, planet_earth.png
+   - population_2020.csv, population_2021.csv, population_2022.csv
+
+❌ DON'Ts:
+1. Don't use spaces in filenames
+   Bad: "my file 1.png"
+   Good: my_file_1.png
+
+2. Don't use special characters (except underscores)
+   Bad: data@2023.csv, file#1.txt
+   Good: data_2023.csv, file_1.txt
+
+3. Don't use very long names
+   Bad: very_long_and_detailed_description_of_the_image.png
+   Good: image_description.png
+
+4. Don't use numbers only as names
+   Bad: 12345.png, 2023.csv
+   Good: image_12345.png, data_2023.csv
+
+5. Don't use the same name for different files
+   Bad: data.csv (multiple files)
+   Good: population_data.csv, temperature_data.csv
+
+SUPPORTED FILE TYPES
+-------------------
+Images: .png, .jpg, .jpeg, .bmp, .gif
+Tables: .csv
+Text: .txt
+
+EXAMPLES OF GOOD FILE NAMES
+--------------------------
+Images:
+- planets_solar_system.png
+- jupiter_red_spot.jpg
+- earth_continents.png
+- population_density_map.png
+
+Tables:
+- population_density_2023.csv
+- temperature_data_monthly.csv
+- sales_figures_quarterly.csv
+- student_grades_2023.csv
+
+Text:
+- solar_system_description.txt
+- population_analysis.txt
+- project_requirements.txt
+
+EXAMPLES OF BAD FILE NAMES
+-------------------------
+- my file 1.png
+- data@2023.csv
+- 12345.txt
+- very long and detailed description of the image.png
+- file with spaces and special chars!.txt
+- multiple spaces  in  name.csv
+
+TIPS FOR ORGANIZATION
+--------------------
+1. Group related files with similar prefixes
+   Example: planet_mercury.png, planet_venus.png, planet_earth.png
+
+2. Use dates in a consistent format
+   Example: data_2023_01.csv, data_2023_02.csv
+
+3. Use version numbers if needed
+   Example: report_v1.csv, report_v2.csv
+
+4. Keep a consistent structure
+   Example: category_subject_date.extension
+
+Remember: Well-named files make it easier for the chatbot to reference and display your content correctly! 

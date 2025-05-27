@@ -1,0 +1,20 @@
+File Name Handling:
+
+Show me Image1.jpg: Should display the image and handle the exact case.
+Show me image 1.jpg: Should resolve the space and case variation.
+Show me IMAGE_1.JPG: Should handle uppercase and underscore.
+Show me Test-Image@2.png: Should handle special characters.
+Show me [Figure 1]: Should map to Image1.jpg using the index.
+
+Table Display on First Query:
+
+Tell me about the sales data: Should display Table1.csv as [Table 1] on the first query.
+Show me table 1.csv: Should resolve the space and case variation.
+Show me TABLE_1.CSV: Should handle uppercase and underscore.
+Show me Data_Table#2.csv: Should handle special characters.
+Show me [Table 1]: Should map to Table1.csv using the index.
+
+Edge Cases:
+Describe the test document: Should retrieve and summarize content, including table references.
+Show me all tables: Should display all indexed tables (Table1.csv, table 1.csv, TABLE_1.CSV, Data_Table#2.csv).
+What’s in Test-Image@2.png?: Should retrieve and display the image with special characters.

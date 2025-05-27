@@ -22,7 +22,7 @@ from vosk import Model, KaldiRecognizer
 import wave
 
 # === Configuration ===
-DEFAULT_LLM_MODEL = "llava:latest"
+DEFAULT_LLM_MODEL = "gemma3:latest"
 DEFAULT_EMBEDDING_MODEL = "all-MiniLM-L6-v2"
 DEFAULT_SYSTEM_PROMPT = """You are Chatbot, a helpful, witty, and slightly sarcastic assistant. Answer concisely based on the provided context from documents, images, and tables. When referencing figures or tables, use the format [Figure X] or [Table Y] where X/Y are numbers starting from 1. When mentioning file names, use the exact file name as provided in the context, preserving case and spacing (e.g., 'Image1.jpg' not 'image1.jpg' or 'Image 1.jpg'). Ensure you include [Table Y] references for any relevant table data, even if the query doesn't explicitly ask for it, if it improves the answer. If the answer isn't in the context, say you don't know."""
 HISTORY_DIR = "chat_history"

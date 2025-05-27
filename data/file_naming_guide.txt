@@ -1,96 +1,65 @@
-FILE NAMING GUIDELINES FOR RAG CHATBOT
-====================================
+# File Naming Guide for Multi-Modal RAG Chatbot
 
-This guide will help you name your files correctly to ensure proper functioning of the chatbot's file referencing system.
+To maximize accuracy and avoid retrieval issues in the chatbot, follow these naming conventions for text files, images, and tables.
 
-BEST PRACTICES
--------------
+## 1. General Naming Principles
+- **Use Consistent Case**: Prefer lowercase (e.g., `document.txt`, `image1.jpg`, `table1.csv`) to avoid case-sensitivity issues on systems like Linux.
+- **Avoid Spaces**: Use underscores (`_`) instead of spaces (e.g., `sales_data.csv` not `sales data.csv`).
+- **Keep Names Simple**: Use alphanumeric characters and underscores. Avoid special characters (e.g., `@`, `#`, `%`) except hyphens (`-`).
+- **Be Descriptive**: Use clear, meaningful names (e.g., `product_sales.csv` instead of `file1.csv`).
+- **Use Standard Extensions**:
+  - Text: `.txt`
+  - Images: `.jpg`, `.jpeg`, `.png`, `.bmp`, `.gif`
+  - Tables: `.csv`
 
-✅ DO's:
-1. Use simple, descriptive names
-   Example: jupiter_planet.png, population_data.csv
+## 2. Text File Naming (`data/text_documents`)
+- **Example**: `sales_report.txt`, `user_guide.txt`
+- **Tips**:
+  - Keep names under 50 characters for readability.
+  - Use UTF-8 encoding to ensure compatibility.
+  - Reference images/tables in the text using exact file names (e.g., `See image1.jpg` or `[Table 1]` for `table1.csv`).
+  - Avoid duplicate names (e.g., don’t use `report.txt` if it already exists).
 
-2. Use lowercase letters
-   Example: solar_system.png, not Solar_System.png
+## 3. Image File Naming (`data/images`)
+- **Example**: `product_image1.jpg`, `chart_2025.png`
+- **Tips**:
+  - Match the case used in text file references (e.g., if the text says `Image1.jpg`, name the file `Image1.jpg`).
+  - Use underscores for multi-word names (e.g., `store_front.jpg`).
+  - Ensure images are valid and readable (e.g., non-corrupted JPEG/PNG files).
 
-3. Use underscores instead of spaces
-   Example: red_apple.jpg, not "red apple.jpg"
+## 4. Table File Naming (`data/tables`)
+- **Example**: `sales_data_2025.csv`, `inventory_table.csv`
+- **Tips**:
+  - Use `.csv` extension with comma-separated values.
+  - Include clear column headers in the first row (e.g., `Product,Price,Quantity`).
+  - Match the case used in text references (e.g., `Table1.csv` if referenced as `[Table 1]`).
+  - Avoid spaces and special characters to ensure reliable display on the first query.
 
-4. Keep names short but meaningful
-   Example: planets_2023.csv, not detailed_planetary_data_2023.csv
+## 5. Referencing in Text Files
+- **Use Exact Names**: When mentioning files in `.txt` files, use the exact file name (e.g., `See table1.csv` not `Table 1`).
+- **Use [Figure X] and [Table Y]**: Reference images as `[Figure 1]`, `[Figure 2]`, etc., and tables as `[Table 1]`, `[Table 2]`, etc., to leverage index-based mapping.
+- **Describe Tables**: Include keywords related to table content (e.g., “sales data in table1.csv”) to improve retrieval accuracy.
 
-5. Use consistent naming patterns for related files
-   Example: 
-   - planet_mercury.png, planet_venus.png, planet_earth.png
-   - population_2020.csv, population_2021.csv, population_2022.csv
+## 6. Edge Case Handling
+- **Avoid Ambiguity**: Don’t use similar names (e.g., `table1.csv` and `Table1.csv`) in the same folder.
+- **Test Variations**: If you must use spaces or mixed case (e.g., `Sales Data.csv`), test with queries like `Show me Sales Data.csv` to ensure retrieval.
+- **No Special Characters**: Avoid `!`, `@`, `#`, etc., as they may cause indexing issues. Hyphens (`-`) are safe.
 
-❌ DON'Ts:
-1. Don't use spaces in filenames
-   Bad: "my file 1.png"
-   Good: my_file_1.png
+## 7. Example File Structure
+```
+data/
+├── text_documents/
+│   └── sales_report.txt  # Contains: "See [Figure 1] for chart in product_image1.jpg and [Table 1] for data in sales_data.csv"
+├── images/
+│   └── product_image1.jpg
+├── tables/
+│   └── sales_data.csv    # Contains: Product,Price,Quantity
+```
 
-2. Don't use special characters (except underscores)
-   Bad: data@2023.csv, file#1.txt
-   Good: data_2023.csv, file_1.txt
+## 8. Best Practices
+- **Verify Before Indexing**: Check file names and references in `.txt` files for consistency.
+- **Re-index After Changes**: Use the “Re-index” button in the chatbot after adding or renaming files.
+- **Test Queries**: Try queries like `Show me sales_data.csv` or `Describe [Table 1]` to confirm accuracy.
+- **Check Logs**: If files don’t display, review logs for retrieval errors.
 
-3. Don't use very long names
-   Bad: very_long_and_detailed_description_of_the_image.png
-   Good: image_description.png
-
-4. Don't use numbers only as names
-   Bad: 12345.png, 2023.csv
-   Good: image_12345.png, data_2023.csv
-
-5. Don't use the same name for different files
-   Bad: data.csv (multiple files)
-   Good: population_data.csv, temperature_data.csv
-
-SUPPORTED FILE TYPES
--------------------
-Images: .png, .jpg, .jpeg, .bmp, .gif
-Tables: .csv
-Text: .txt
-
-EXAMPLES OF GOOD FILE NAMES
---------------------------
-Images:
-- planets_solar_system.png
-- jupiter_red_spot.jpg
-- earth_continents.png
-- population_density_map.png
-
-Tables:
-- population_density_2023.csv
-- temperature_data_monthly.csv
-- sales_figures_quarterly.csv
-- student_grades_2023.csv
-
-Text:
-- solar_system_description.txt
-- population_analysis.txt
-- project_requirements.txt
-
-EXAMPLES OF BAD FILE NAMES
--------------------------
-- my file 1.png
-- data@2023.csv
-- 12345.txt
-- very long and detailed description of the image.png
-- file with spaces and special chars!.txt
-- multiple spaces  in  name.csv
-
-TIPS FOR ORGANIZATION
---------------------
-1. Group related files with similar prefixes
-   Example: planet_mercury.png, planet_venus.png, planet_earth.png
-
-2. Use dates in a consistent format
-   Example: data_2023_01.csv, data_2023_02.csv
-
-3. Use version numbers if needed
-   Example: report_v1.csv, report_v2.csv
-
-4. Keep a consistent structure
-   Example: category_subject_date.extension
-
-Remember: Well-named files make it easier for the chatbot to reference and display your content correctly! 
+By following these conventions, your team can ensure accurate file retrieval and reliable table display in the chatbot.
